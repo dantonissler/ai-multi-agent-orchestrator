@@ -1,7 +1,7 @@
 [project]
 name = "ai-multi-agent-orchestrator"
 version = "0.1.0"
-description = "PoC de triagem de tickets de suporte e aprovação corporativa via LangGraph."
+description = "PoC de Legal Tech: análise de publicações judiciais e automação de protocolo via LangGraph."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
