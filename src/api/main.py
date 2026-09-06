@@ -2,7 +2,7 @@ import logging
 
 from fastapi import FastAPI
 
-from api.routes.publications import router as publications_router
+from api.routes import router as publications_router
 from core.config import get_settings
 
 settings = get_settings()
