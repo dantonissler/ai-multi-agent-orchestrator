@@ -4,32 +4,49 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 
-class TicketCategory(StrEnum):
-    SUPORTE_TECNICO = "suporte_tecnico"
-    REEMBOLSO = "reembolso"
-    DESCONHECIDO = "desconhecido"
+class DecisionOutcome(StrEnum):
+    FAVORAVEL = "favoravel"
+    DESFAVORAVEL = "desfavoravel"
+    INDETERMINADO = "indeterminado"
 
 
-class TicketInput(BaseModel):
-    message: str = Field(..., description="Mensagem original do usuário ou ticket.")
+class PublicationInput(BaseModel):
+    publication_text: str = Field(
+        ..., min_length=1, description="Texto da publicação ou sentença judicial."
+    )
+    case_number: str = Field(..., description="Número do processo.")
+    client_name: str = Field(..., description="Nome do cliente representado.")
+    court: str | None = Field(default=None, description="Tribunal ou vara de origem.")
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
-class ClassificationResult(BaseModel):
-    category: TicketCategory = TicketCategory.DESCONHECIDO
+class AnalysisResult(BaseModel):
+    outcome: DecisionOutcome = DecisionOutcome.INDETERMINADO
     confidence: float | None = None
     reasoning: str | None = None
 
 
-class ExtractionResult(BaseModel):
-    is_complete: bool = False
-    missing_fields: list[str] = Field(default_factory=list)
-    extracted_data: dict[str, Any] = Field(default_factory=dict)
+class DraftResult(BaseModel):
+    document_type: str = "contrarrazoes"
+    content: str | None = None
+    is_ready: bool = False
+
+
+class FilingResult(BaseModel):
+    protocol_number: str | None = None
+    status: str = "pending"
+    filed_at: str | None = None
 
 
 class OrchestratorState(BaseModel):
-    ticket: TicketInput
-    classification: ClassificationResult | None = None
-    extraction: ExtractionResult | None = None
-    user_prompt: str | None = None
+    publication: PublicationInput
+    analysis: AnalysisResult | None = None
+    draft: DraftResult | None = None
+    filing: FilingResult | None = None
+    current_step: str = "supervisor"
     is_finalized: bool = False
+
+
+class ProcessPublicationResponse(BaseModel):
+    message: str
+    state: OrchestratorState
